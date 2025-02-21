@@ -1,0 +1,56 @@
+[
+    {
+        "id":1,
+        "name": "Dean Yo",
+        "avatar": "https://randomuser.me/api/portraits/women/93.jpg",
+        "email": "deanyo@gmail.com",
+        "salary": "2500",
+        "date":"2025-01-15",
+        "status": "Active"
+    },
+    {
+        "id": 2,
+        "name": "Alice Smith",
+        "avatar": "https://randomuser.me/api/portraits/women/94.jpg",
+        "email": "alice.smith@gmail.com",
+        "salary": "3000",
+        "date": "2025-01-16",
+        "status": "Active"
+    },
+    {
+        "id": 3,
+        "name": "Bob Johnson",
+        "avatar": "https://randomuser.me/api/portraits/men/95.jpg",
+        "email": "bob.johnson@gmail.com",
+        "salary": "3500",
+        "date": "2025-01-17",
+        "status": "Active"
+    },
+    {
+        "id": 4,
+        "name": "Charlie Brown",
+        "avatar": "https://randomuser.me/api/portraits/men/96.jpg",
+        "email": "charlie.brown@gmail.com",
+        "salary": "4000",
+        "date": "2025-01-18",
+        "status": "Active"
+    },
+    {
+        "id": 5,
+        "name": "Diana Prince",
+        "avatar": "https://randomuser.me/api/portraits/women/97.jpg",
+        "email": "diana.prince@gmail.com",
+        "salary": "4500",
+        "date": "2025-01-19",
+        "status": "Active"
+    },
+    {
+        "id": 6,
+        "name": "Ethan Hunt",
+        "avatar": "https://randomuser.me/api/portraits/men/98.jpg",
+        "email": "ethan.hunt@gmail.com",
+        "salary": "5000",
+        "date": "2025-01-20",
+        "status": "Active"
+    }
+]
