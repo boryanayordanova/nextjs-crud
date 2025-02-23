@@ -66,7 +66,7 @@ export default function AddUserForm({ setUsers }) {
       {failedMessage && <Bug message={failedMessage} />}
 
       <form
-        className="grid lg:grid-cols-2 w-4/6 gap-4 text-gray-500"
+        className="container grid py-5 mx-auto w-full grid lg:grid-cols-2 w-4/6 gap-4 text-gray-500"
         onSubmit={handleSubmit}
       >
         <div className="input-type">

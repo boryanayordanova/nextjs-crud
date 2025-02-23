@@ -63,7 +63,7 @@ const UpdateUserForm = ({ user, onSubmit }) => {
 
   return (
     <form
-      className="grid lg:grid-cols-2 w-4/6 gap-4 text-gray-500"
+      className="container grid py-5 mx-auto w-full lg:grid-cols-2 w-4/6 gap-4 text-gray-500"
       onSubmit={handleSubmit}
     >
       {/* Form fields for firstname, lastname, email, etc. */}
@@ -120,7 +120,8 @@ const UpdateUserForm = ({ user, onSubmit }) => {
             type="radio"
             onChange={(e) => setFormData(formReducer(formData, e.target))}
             name="status"
-            value={formData.status === "Active" ? "Active" : "Inactive"}
+            value="Active"
+            checked={formData.status === "Active"}
             id="radioDefault1"
             className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
           />
@@ -133,7 +134,8 @@ const UpdateUserForm = ({ user, onSubmit }) => {
             type="radio"
             onChange={(e) => setFormData(formReducer(formData, e.target))}
             name="status"
-            value={formData.status === "Active" ? "Active" : "Inactive"}
+            value="Inactive"
+            checked={formData.status === "Inactive"}
             id="radioDefault2"
             className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
           />
