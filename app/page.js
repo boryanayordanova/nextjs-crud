@@ -2,24 +2,36 @@
 
 import { BiUserPlus } from "react-icons/bi";
 import Table from "./components/table";
-import Form from "./components/form";
+import AddUserForm from "./components/addUserForm";
+import UpdateUserForm from "./components/updateUserForm";
 import { useState, useEffect } from "react";
 
 export default function Home() {
   const [visible, setVisible] = useState(false);
   const [users, setUsers] = useState([]); // Define setUsers state
   const [refresh, setRefresh] = useState(false);
+  const [whichForm, setWhichForm] = useState("add");
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  const handler = () => {
-    setVisible(!visible);
+  const handleAddUser = () => {
+    setWhichForm("add");
+    setVisible(true);
+  };
+
+  const handleUpdate = () => {
+    setVisible(false); // Hide the form after update
+    fetchUsers(); // Refresh the user list
+  };
+
+  const fetchUsers = async () => {
+    const response = await fetch("/api/users");
+    const data = await response.json();
+    setUsers(data.data);
+    return data.data; // Assuming the response structure contains the user data here
   };
 
   useEffect(() => {
-    (async () => {
-      let response = await fetch("/api/users");
-      let jsonData = await response.json();
-      setUsers(jsonData.data);
-    })();
+    fetchUsers();
   }, [refresh]);
 
   return (
@@ -32,7 +44,7 @@ export default function Home() {
           <div className="container mx-auto flex justify-between py-5 border-b">
             <div className="left flex gap-3">
               <button
-                onClick={handler}
+                onClick={handleAddUser}
                 className="flex bg-indigo-600 text-white px-4 py-2 border rounded-md hover:bg-gray-400 hover:text-indigo-800 hover:border-indigo-800"
               >
                 Add Employee{" "}
@@ -44,11 +56,23 @@ export default function Home() {
           </div>
 
           {/* collapsible form */}
-          {visible ? <Form setUsers={setUsers} /> : <></>}
+          {visible && (
+            <>{whichForm === "add" && <AddUserForm setUsers={setUsers} />}</>
+          )}
+          {whichForm === "update" && selectedUser && (
+            <UpdateUserForm user={selectedUser} onSubmit={handleUpdate} />
+          )}
 
           {/* table */}
           <div className="container mx-auto py-5">
-            <Table users={users} />
+            <Table
+              users={users}
+              setUsers={setUsers}
+              fetchUsers={fetchUsers}
+              pickUpFormType={setWhichForm}
+              // selectedUser={selectedUser}
+              setSelectedUser={setSelectedUser}
+            />
           </div>
         </main>
         <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">

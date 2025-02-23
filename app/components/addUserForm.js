@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useState, useEffect } from "react";
+import { useReducer, useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import Success from "./success";
 import Bug from "./bug";
@@ -25,7 +25,8 @@ export default function AddUserForm({ setUsers }) {
     if (Object.keys(formData).length === 0) {
       return console.log("empty fields");
     }
-    const response = await fetch("/api/users", { // Ensure the correct API endpoint is used
+    const response = await fetch("/api/users", {
+      // Ensure the correct API endpoint is used
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -35,7 +36,8 @@ export default function AddUserForm({ setUsers }) {
 
     if (response.ok) {
       // Clear the form
-      setFormData({ // Clear the form fields after successful submission
+      setFormData({
+        // Clear the form fields after successful submission
         firstname: "",
         lastname: "",
         email: "",
@@ -57,8 +59,6 @@ export default function AddUserForm({ setUsers }) {
     const data = await response.json();
     return data.data; // Assuming the response structure contains the user data here
   };
-
-
 
   return (
     <>

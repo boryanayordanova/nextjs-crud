@@ -1,12 +1,13 @@
-import AddUserForm from "./addUserForm";
-import UpdateUserForm from "./updateUserForm";
+// import AddUserForm from "./addUserForm";
+// import UpdateUserForm from "./updateUserForm"; // Import the UpdateUserForm
 
-export default function Form({ setRefresh, setUsers }) {
-  const flag = true;
-
-  return (
-    <div className="container mx-auto py-5">
-      {flag ? <AddUserForm setUsers={setUsers} /> : <UpdateUserForm />}
-    </div>
-  );
-}
+// export default function Form({ setUsers, selectedUser, onUpdate, formType }) {
+//   return (
+//     <>
+//       {formType === "add" && <AddUserForm setUsers={setUsers} />}
+//       {formType === "update" && selectedUser && (
+//         <UpdateUserForm user={selectedUser} onSubmit={onUpdate} /> // Render UpdateUserForm
+//       )}
+//     </>
+//   );
+// }
