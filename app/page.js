@@ -12,6 +12,7 @@ export default function Home() {
   const [refresh, setRefresh] = useState(false);
   const [whichForm, setWhichForm] = useState("add");
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isLoading, setIsloading] = useState(true);
 
   const handleAddUser = () => {
     setWhichForm("add");
@@ -26,6 +27,7 @@ export default function Home() {
   const fetchUsers = async () => {
     const response = await fetch("/api/users");
     const data = await response.json();
+    setIsloading(false);
     setUsers(data.data);
     return data.data; // Assuming the response structure contains the user data here
   };
@@ -64,16 +66,22 @@ export default function Home() {
           )}
 
           {/* table */}
-          <div className="container mx-auto py-5">
-            <Table
-              users={users}
-              setUsers={setUsers}
-              fetchUsers={fetchUsers}
-              pickUpFormType={setWhichForm}
-              // selectedUser={selectedUser}
-              setSelectedUser={setSelectedUser}
-            />
-          </div>
+          {isLoading ? (
+            <p className="container mx-auto py-10 text-center">
+              LOADING ... :/{" "}
+            </p>
+          ) : (
+            <div className="container mx-auto py-5">
+              <Table
+                users={users}
+                setUsers={setUsers}
+                fetchUsers={fetchUsers}
+                pickUpFormType={setWhichForm}
+                // selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+              />
+            </div>
+          )}
         </main>
         <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
           Boryana Yordanova
