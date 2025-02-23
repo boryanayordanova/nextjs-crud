@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 
 export default function Home() {
   const [visible, setVisible] = useState(false);
+  const [resetForm, setResetForm] = useState(false);
   const [users, setUsers] = useState([]); // Define setUsers state
   const [refresh, setRefresh] = useState(false);
   const [whichForm, setWhichForm] = useState("add");
@@ -16,6 +17,7 @@ export default function Home() {
 
   const handleAddUser = () => {
     setWhichForm("add");
+    setResetForm(resetForm); // Toggle to trigger reset
     setVisible(true);
   };
 
@@ -59,7 +61,11 @@ export default function Home() {
 
           {/* collapsible form */}
           {visible && (
-            <>{whichForm === "add" && <AddUserForm setUsers={setUsers} />}</>
+            <>
+              {whichForm === "add" && (
+                <AddUserForm setUsers={setUsers} resetTrigger={resetForm} />
+              )}
+            </>
           )}
           {whichForm === "update" && selectedUser && (
             <UpdateUserForm user={selectedUser} onSubmit={handleUpdate} />

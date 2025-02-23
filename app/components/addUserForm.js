@@ -1,69 +1,126 @@
 "use client";
 
-import { useReducer, useState } from "react";
+import { useReducer, useState, useEffect, useRef } from "react";
 import { BiPlus } from "react-icons/bi";
 import Success from "./success";
 import Bug from "./bug";
 
 const formReducer = (state, event) => {
   if (event && event.target) {
+    // Handle input events
     return {
       ...state,
       [event.target.name]: event.target.value,
     };
+  } else if (typeof event === "object") {
+    // Handle direct state updates
+    return {
+      ...state,
+      ...event,
+    };
   }
-  return state; // Return the current state if event or event.target is undefined
+  return state;
 };
 
-export default function AddUserForm({ setUsers }) {
+export default function AddUserForm({ setUsers, resetTrigger }) {
   const [formData, setFormData] = useReducer(formReducer, {});
+  const timeoutRef = useRef(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [failedMessage, setFailedMessage] = useState("");
 
+  const resetForm = () => {
+    setFormData({
+      firstname: "",
+      lastname: "",
+      email: "",
+      salary: "",
+      date: "",
+      status: "",
+    });
+    // setFailedMessage("");
+    // setSuccessMessage("");
+  };
+
+  useEffect(() => {
+    if (resetTrigger) {
+      resetForm();
+    }
+  }, [resetTrigger]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (Object.keys(formData).length === 0) {
-      return console.log("empty fields");
-    }
-    const response = await fetch("/api/users", {
-      // Ensure the correct API endpoint is used
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+    try {
+      // Validate required fields
+      if (
+        !formData.firstname?.trim() ||
+        !formData.lastname?.trim() ||
+        !formData.email?.trim()
+      ) {
+        setFailedMessage("Please fill all required fields");
+        return;
+      }
 
-    if (response.ok) {
-      // Clear the form
-      setFormData({
-        // Clear the form fields after successful submission
-        firstname: "",
-        lastname: "",
-        email: "",
-        salary: "",
-        date: "",
-        status: "",
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setFailedMessage("Please enter a valid email address");
+        return;
+      }
+
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-      // Fetch updated user list
-      const updatedUsers = await fetchUsers();
-      setUsers(updatedUsers);
-      setSuccessMessage("User added successfully!");
-    } else {
-      setFailedMessage("User adding failed!");
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // throw new Error(result.message || "Failed to add employee");
+        setFailedMessage("Failed to add employee");
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+          setFailedMessage("");
+        }, 1000);
+      } else {
+        setSuccessMessage("Employee added successfully!");
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+          setSuccessMessage("");
+        }, 1000);
+        const updatedUsers = await fetchUsers();
+        setUsers(updatedUsers);
+        resetForm();
+      }
+    } catch (error) {
+      console.error("Error adding employee:", error);
+      setFailedMessage(
+        error.message || "An error occurred while adding employee"
+      );
     }
+
+    // Reset handled by resetForm()
   };
 
   const fetchUsers = async () => {
     const response = await fetch("/api/users");
     const data = await response.json();
-    return data.data; // Assuming the response structure contains the user data here
+    return data.data;
   };
 
   return (
     <>
-      {successMessage && <Success message={successMessage} />}
-      {failedMessage && <Bug message={failedMessage} />}
+      {successMessage ? (
+        <Success message={successMessage} />
+      ) : failedMessage ? (
+        <Bug message={failedMessage} />
+      ) : null}
 
       <form
         className="container grid py-5 mx-auto w-full grid lg:grid-cols-2 w-4/6 gap-4 text-gray-500"
@@ -74,8 +131,12 @@ export default function AddUserForm({ setUsers }) {
             type="text"
             onChange={(e) => setFormData(e)}
             name="firstname"
+            value={formData.firstname || ""}
             placeholder="FirstName"
             className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="20"
+            required
           />
         </div>
         <div className="input-type">
@@ -83,17 +144,26 @@ export default function AddUserForm({ setUsers }) {
             type="text"
             onChange={(e) => setFormData(e)}
             name="lastname"
+            value={formData.lastname || ""}
             placeholder="LastName"
             className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="20"
+            required
           />
         </div>
         <div className="input-type">
           <input
-            type="text"
+            type="email"
             onChange={(e) => setFormData(e)}
             name="email"
+            value={formData.email || ""}
             placeholder="Email"
             className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="20"
+            pattern="^[^@]+@[^@]+\.[^@]+$"
+            required
           />
         </div>
         <div className="input-type">
@@ -101,8 +171,12 @@ export default function AddUserForm({ setUsers }) {
             type="text"
             onChange={(e) => setFormData(e)}
             name="salary"
+            value={formData.salary || ""}
             placeholder="Salary"
             className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="10"
+            required
           />
         </div>
         <div className="input-type">
@@ -110,8 +184,10 @@ export default function AddUserForm({ setUsers }) {
             type="date"
             onChange={(e) => setFormData(e)}
             name="date"
+            value={formData.date || ""}
             placeholder="Date"
             className="border px-5 py-3 focus:outline-none rounded-md text-gray-500"
+            required
           />
         </div>
         <div className="flex gap-10 items-center">
@@ -121,8 +197,10 @@ export default function AddUserForm({ setUsers }) {
               onChange={(e) => setFormData(e)}
               name="status"
               value="Active"
+              checked={formData.status === "Active"}
               id="radioDefault1"
               className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+              required
             />
             <label
               htmlFor="radioDefault1"
@@ -137,8 +215,10 @@ export default function AddUserForm({ setUsers }) {
               onChange={(e) => setFormData(e)}
               name="status"
               value="Inactive"
+              checked={formData.status === "Inactive"}
               id="radioDefault2"
               className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+              required
             />
             <label
               htmlFor="radioDefault2"

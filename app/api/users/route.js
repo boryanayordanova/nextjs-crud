@@ -5,6 +5,7 @@ import { connect } from "../../database/conn";
 export async function POST(request) {
   try {
     await connect();
+
     const { firstname, lastname, email, salary, date, status } =
       await request.json();
     const newUser = new User({
@@ -15,6 +16,7 @@ export async function POST(request) {
       date,
       status,
     });
+    console.log("req", newUser);
 
     await newUser.save();
 
@@ -31,7 +33,7 @@ export async function POST(request) {
     return NextResponse.json({
       success: false,
       message: error,
-    });
+    }, { status: 500 });
   }
 }
 

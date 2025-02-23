@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BiBrush } from "react-icons/bi";
+import Success from "./success";
+import Bug from "./bug";
 
 const formReducer = (state, event) => {
   return { ...state, [event.name]: event.value };
 };
 
-const UpdateUserForm = ({ user, onSubmit }) => {
+const UpdateUserForm = ({ user, onSubmit, resetTrigger }) => {
+  const [successMessage, setSuccessMessage] = useState("");
+  const [failedMessage, setFailedMessage] = useState("");
+  const timeoutRef = useRef(null);
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -14,6 +19,17 @@ const UpdateUserForm = ({ user, onSubmit }) => {
     date: "",
     status: "",
   });
+
+  const resetForm = () => {
+    setFailedMessage("");
+    setSuccessMessage("");
+  };
+
+  useEffect(() => {
+    if (resetTrigger) {
+      resetForm();
+    }
+  }, [resetTrigger]);
 
   const handleSubmit = async (event) => {
     console.log(formData);
@@ -42,8 +58,22 @@ const UpdateUserForm = ({ user, onSubmit }) => {
     if (response.ok) {
       // Handle successful update
       onSubmit(formData); // Call the onSubmit function passed as a prop
+      setSuccessMessage("Updated!");
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        setSuccessMessage("");
+      }, 1000);
     } else {
       // Handle update failure
+      setFailedMessage("Update failed!");
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        setFailedMessage("");
+      }, 1000);
       console.error("Update failed");
     }
   };
@@ -62,96 +92,127 @@ const UpdateUserForm = ({ user, onSubmit }) => {
   }, [user]);
 
   return (
-    <form
-      className="container grid py-5 mx-auto w-full lg:grid-cols-2 w-4/6 gap-4 text-gray-500"
-      onSubmit={handleSubmit}
-    >
-      {/* Form fields for firstname, lastname, email, etc. */}
-      <div className="input-type">
-        <input
-          name="firstname"
-          value={formData.firstname}
-          onChange={(e) => setFormData(formReducer(formData, e.target))}
-          placeholder="First Name"
-          className="border w-full px-5 py-3 focus:outline-none"
-        />
-      </div>
-      <div className="input-type">
-        <input
-          name="lastname"
-          value={formData.lastname}
-          onChange={(e) => setFormData(formReducer(formData, e.target))}
-          placeholder="Last Name"
-          className="border w-full px-5 py-3 focus:outline-none"
-        />
-      </div>
-      <div className="input-type">
-        <input
-          name="email"
-          value={formData.email}
-          onChange={(e) => setFormData(formReducer(formData, e.target))}
-          placeholder="Email"
-          className="border w-full px-5 py-3 focus:outline-none"
-        />
-      </div>
-      <div className="input-type">
-        <input
-          name="salary"
-          value={formData.salary}
-          onChange={(e) => setFormData(formReducer(formData, e.target))}
-          placeholder="Salary"
-          className="border w-full px-5 py-3 focus:outline-none"
-        />
-      </div>
+    <>
+      {successMessage ? (
+        <Success message={successMessage} />
+      ) : failedMessage ? (
+        <Bug message={failedMessage} />
+      ) : null}
+      
+      <form
+        className="container grid py-5 mx-auto w-full lg:grid-cols-2 w-4/6 gap-4 text-gray-500"
+        onSubmit={handleSubmit}
+      >
+        {/* Form fields for firstname, lastname, email, etc. */}
+        <div className="input-type">
+          <input
+            name="firstname"
+            value={formData.firstname}
+            onChange={(e) => setFormData(formReducer(formData, e.target))}
+            placeholder="First Name"
+            className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="20"
+            required
+          />
+        </div>
+        <div className="input-type">
+          <input
+            name="lastname"
+            value={formData.lastname}
+            onChange={(e) => setFormData(formReducer(formData, e.target))}
+            placeholder="Last Name"
+            className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="20"
+            required
+          />
+        </div>
+        <div className="input-type">
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={(e) => setFormData(formReducer(formData, e.target))}
+            placeholder="Email"
+            className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="20"
+            pattern="^[^@]+@[^@]+\.[^@]+$"
+            required
+          />
+        </div>
+        <div className="input-type">
+          <input
+            name="salary"
+            value={formData.salary}
+            onChange={(e) => setFormData(formReducer(formData, e.target))}
+            placeholder="Salary"
+            className="border w-full px-5 py-3 focus:outline-none"
+            minLength="1"
+            maxLength="10"
+            required
+          />
+        </div>
 
-      <div className="input-type">
-        <input
-          type="date"
-          name="date"
-          value={formData.date}
-          onChange={(e) => setFormData(formReducer(formData, e.target))}
-          placeholder="Date"
-          className="border px-5 py-3 focus:outline-none rounded-md text-gray-500"
-        />
-      </div>
-      <div className="flex gap-10 items-center">
-        <div className="form-check">
+        <div className="input-type">
           <input
-            type="radio"
+            type="date"
+            name="date"
+            value={formData.date}
             onChange={(e) => setFormData(formReducer(formData, e.target))}
-            name="status"
-            value="Active"
-            checked={formData.status === "Active"}
-            id="radioDefault1"
-            className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+            placeholder="Date"
+            className="border px-5 py-3 focus:outline-none rounded-md text-gray-500"
+            required
           />
-          <label htmlFor="radioDefault1" className="inline-block text-gray-500">
-            Active
-          </label>
         </div>
-        <div className="form-check">
-          <input
-            type="radio"
-            onChange={(e) => setFormData(formReducer(formData, e.target))}
-            name="status"
-            value="Inactive"
-            checked={formData.status === "Inactive"}
-            id="radioDefault2"
-            className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
-          />
-          <label htmlFor="radioDefault2" className="inline-block text-gray-500">
-            Inactive
-          </label>
+        <div className="flex gap-10 items-center">
+          <div className="form-check">
+            <input
+              type="radio"
+              onChange={(e) => setFormData(formReducer(formData, e.target))}
+              name="status"
+              value="Active"
+              checked={formData.status === "Active"}
+              id="radioDefault1"
+              className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+              required
+            />
+            <label
+              htmlFor="radioDefault1"
+              className="inline-block text-gray-500"
+            >
+              Active
+            </label>
+          </div>
+          <div className="form-check">
+            <input
+              type="radio"
+              onChange={(e) => setFormData(formReducer(formData, e.target))}
+              name="status"
+              value="Inactive"
+              checked={formData.status === "Inactive"}
+              id="radioDefault2"
+              className="form-check-input appearance-none rounded-full h-4 w-4 border border-gray-500 bg-white checked:bg-green-500 checked:border-gray-500 focus:outline-none duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+              required
+            />
+            <label
+              htmlFor="radioDefault2"
+              className="inline-block text-gray-500"
+            >
+              Inactive
+            </label>
+          </div>
         </div>
-      </div>
-      <button className="flex justify-center align-center text-md w-2/6 bg-yellow-500 text-white px-4 py-2 border rounded-md hover:bg-gray-50 hover:border-yellow-500 hover:text-yellow-500">
-        {/* <button type="submit"> */}
-        Submit{" "}
-        <span className="px-1">
-          <BiBrush size={24} />
-        </span>
-      </button>
-    </form>
+        <button className="flex justify-center align-center text-md w-2/6 bg-yellow-500 text-white px-4 py-2 border rounded-md hover:bg-gray-50 hover:border-yellow-500 hover:text-yellow-500">
+          {/* <button type="submit"> */}
+          Submit{" "}
+          <span className="px-1">
+            <BiBrush size={24} />
+          </span>
+        </button>
+      </form>
+    </>
   );
 };
 
